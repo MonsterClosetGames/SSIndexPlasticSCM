@@ -113,20 +113,23 @@ sub GatherFileInformation {
     my $ServerRefs = shift;
 	my ($Server, $Root, $PreferredAlias, $PreferredServer);	
 	
-	# This will return a line with the server path and the latest changeset
-	my @Files = `$$self{'PLASTICSCM_CMD'} ls -R --format="{path}|{changeset}" --tree=$$self{'PLASTICSCMCHANGESET'}\@$$self{'PLASTICREPOSITORY'}\@$$self{'PLASTICSERVER'} 2>NUL`;
+	# This will return a line with the server path and the latest revid
+	my @Files = `$$self{'PLASTICSCM_CMD'} ls -R --format="{path}|{revid}|{repspec}" --tree=$$self{'PLASTICSCMCHANGESET'}\@$$self{'PLASTICREPOSITORY'}\@$$self{'PLASTICSERVER'} 2>NUL`;
 
     # For each file, calculate a local file path for the lookup table.
     foreach (@Files) {
 		chomp $_;
 		
-		my $LocalFile = (split /\|/,  $_)[0];
+		my $splitResult = split(/\|/, $_);
+		
+		my $LocalFile = $splitResult, 0;
 		my $LocalFileWithPath = ($SourceRoot . $LocalFile);
 		$LocalFileWithPath=~ s/\//\\/g;
 		
-		my $FileRevision = (split /\|/,  $_)[1];
+		my $FileRevisionId = $splitResult, 1;
+		my $FileRepSpec = $splitResult, 2;
 		
-		@{$$self{'FILE_LOOKUP_TABLE'}{lc $LocalFileWithPath}} = ( { }, "$LocalFileWithPath*$$self{'PLASTICREPOSITORY'}*$LocalFile*$FileRevision*$$self{'PLASTICSERVER'}");
+		@{$$self{'FILE_LOOKUP_TABLE'}{lc $LocalFileWithPath}} = ( { }, "$LocalFileWithPath*$$self{'PLASTICREPOSITORY'}*$LocalFile*$FileRevisionId*$FileRepSpec");
     }
 }
 
@@ -169,7 +172,7 @@ sub SourceStreamVariables {
     my @stream;
 
     push(@stream, "PLASTICSCM_EXTRACT_CMD=cm.exe cat ".
-		 "serverpath:%var3%#cs:%var4%\@rep:%var2%\@repserver:%var5%".
+		 "revid:%var4%@%var5%".
 		 "> \"%PLASTICSCM_EXTRACT_TARGET%\"");
     
     push(@stream, "PLASTICSCM_EXTRACT_TARGET=".
