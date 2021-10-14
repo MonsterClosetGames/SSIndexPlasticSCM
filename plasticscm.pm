@@ -119,16 +119,16 @@ sub GatherFileInformation {
     # For each file, calculate a local file path for the lookup table.
     foreach (@Files) {
 		chomp $_;
+				
+		my @splitResult = split(/\|/, $_);
 		
-		my $splitResult = split(/\|/, $_);
-		
-		my $LocalFile = $splitResult, 0;
+		my $LocalFile = @splitResult[0];
 		my $LocalFileWithPath = ($SourceRoot . $LocalFile);
 		$LocalFileWithPath=~ s/\//\\/g;
 		
-		my $FileRevisionId = $splitResult, 1;
-		my $FileRepSpec = $splitResult, 2;
-		
+		my $FileRevisionId = @splitResult[1];
+		my $FileRepSpec = @splitResult[2];
+				
 		@{$$self{'FILE_LOOKUP_TABLE'}{lc $LocalFileWithPath}} = ( { }, "$LocalFileWithPath*$$self{'PLASTICREPOSITORY'}*$LocalFile*$FileRevisionId*$FileRepSpec");
     }
 }
@@ -187,8 +187,8 @@ sub SourceStreamVariables {
 sub LoadFileInfo {
     my $self = shift;
     my $dir  = shift;
-	
-    if ( -e "$dir\\plasticscm_files.dat" ) {
+		
+	if ( -e "$dir\\plasticscm_files.dat" ) {
         our $FileData1;
         require "$dir\\plasticscm_files.dat";
         $$self{'FILE_LOOKUP_TABLE'} = $FileData1;
