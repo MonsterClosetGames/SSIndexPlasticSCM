@@ -114,7 +114,7 @@ sub GatherFileInformation {
 	my ($Server, $Root, $PreferredAlias, $PreferredServer);	
 	
 	# This will return a line with the server path and the latest revid
-	my @Files = `$$self{'PLASTICSCM_CMD'} ls -R --format="{path}|{revid}|{repspec}" --tree=$$self{'PLASTICSCMCHANGESET'}\@$$self{'PLASTICREPOSITORY'}\@$$self{'PLASTICSERVER'} 2>NUL`;
+	my @Files = `$$self{'PLASTICSCM_CMD'} ls -R *.cpp *.h --format="{path}|{revid}|{repspec}" --tree=$$self{'PLASTICSCMCHANGESET'}\@$$self{'PLASTICREPOSITORY'}\@$$self{'PLASTICSERVER'} 2>NUL`;
 
     # For each file, calculate a local file path for the lookup table.
     foreach (@Files) {
